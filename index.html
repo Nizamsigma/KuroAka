@@ -425,4 +425,696 @@
     padding:16px 18px;margin-bottom:18px;
   }
   .pending-row{
-    display:flex;justify-content:
+    display:flex;justify-content:space-between;align-items:center;font-size:.85rem;
+    padding:8px 0;border-bottom:1px solid rgba(255,30,60,.12);color:var(--muted);
+  }
+  .pending-row:last-child{border-bottom:none;}
+  .pending-row b{color:var(--ink);font-family:var(--font-mono);font-size:.82rem;}
+  .status-pending{
+    color:#ffd23f !important;background:rgba(255,210,63,.12);padding:3px 10px;border-radius:100px;font-size:.72rem !important;
+  }
+  .seller-note{font-size:.8rem;color:var(--muted-2);line-height:1.6;margin-bottom:18px;}
+
+  @media(max-width:520px){
+    .seller-modal{padding:28px 20px;}
+  }
+
+  /* ---------------- CART DRAWER ---------------- */
+  .cart-overlay{
+    position:fixed;inset:0;background:rgba(5,3,4,.7);backdrop-filter:blur(3px);
+    z-index:80;opacity:0;pointer-events:none;transition:opacity .35s;
+  }
+  .cart-overlay.show{opacity:1;pointer-events:auto;}
+  .cart-drawer{
+    position:fixed;top:0;right:0;height:100%;width:380px;max-width:92vw;
+    background:var(--panel);border-left:1px solid var(--red-line);
+    z-index:90;display:flex;flex-direction:column;
+    transform:translateX(100%);transition:transform .4s cubic-bezier(.2,.8,.2,1);
+    box-shadow:-20px 0 60px rgba(0,0,0,.5);
+  }
+  .cart-drawer.show{transform:translateX(0);}
+  .cart-head{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:20px 22px;border-bottom:1px solid var(--red-line);
+  }
+  .cart-head h3{font-family:var(--font-display);font-size:1.1rem;font-weight:400;}
+  .cart-close{
+    background:var(--panel-2);border:1px solid var(--red-line);color:var(--ink);
+    width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:.9rem;
+    transition:.2s;
+  }
+  .cart-close:hover{border-color:var(--red);color:var(--red-soft);}
+  .cart-body{flex:1;overflow-y:auto;padding:18px 22px;display:flex;flex-direction:column;gap:16px;}
+  .cart-empty{
+    height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;color:var(--muted);gap:8px;font-size:.9rem;
+  }
+  .cart-empty span:first-child{font-size:2.2rem;}
+  .cart-empty span:last-child{font-size:.78rem;color:var(--muted-2);}
+  .cart-item{
+    display:grid;grid-template-columns:56px 1fr auto;gap:12px;align-items:center;
+    padding-bottom:16px;border-bottom:1px solid rgba(255,30,60,.15);
+  }
+  .cart-thumb{
+    width:56px;height:56px;border-radius:10px;overflow:hidden;position:relative;
+    display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex:none;
+  }
+  .cart-thumb img{width:100%;height:100%;object-fit:cover;}
+  .cart-item-info h4{font-size:.85rem;font-weight:700;margin-bottom:4px;line-height:1.3;}
+  .cart-item-price{font-family:var(--font-mono);font-size:.82rem;color:var(--red-soft);margin-bottom:6px;}
+  .qty-control{display:flex;align-items:center;gap:10px;}
+  .qty-control button{
+    width:24px;height:24px;border-radius:6px;border:1px solid var(--red-line);
+    background:var(--panel-2);color:var(--ink);cursor:pointer;font-size:.9rem;line-height:1;
+  }
+  .qty-control button:hover{border-color:var(--red);}
+  .qty-control span{font-family:var(--font-mono);font-size:.85rem;min-width:16px;text-align:center;}
+  .cart-remove{
+    background:none;border:none;color:var(--muted-2);cursor:pointer;font-size:.95rem;
+    transition:.2s;align-self:start;
+  }
+  .cart-remove:hover{color:var(--red-soft);}
+  .cart-footer{padding:20px 22px;border-top:1px solid var(--red-line);}
+  .cart-total-row{
+    display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;
+    font-size:.95rem;color:var(--muted);
+  }
+  .cart-total-row b{font-family:var(--font-mono);font-size:1.2rem;color:var(--ink);}
+
+  .thumb-icon{position:relative;z-index:1;font-size:2.6rem;}
+  .thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;}
+
+  @media(max-width:520px){
+    .stats{gap:26px;}
+    .trust-grid{grid-template-columns:1fr;}
+    .foot-grid{grid-template-columns:1fr;}
+    .cart-drawer{width:100%;max-width:100%;}
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none !important;transition:none !important;}
+  }
+</style>
+</head>
+<body>
+<div class="noise"></div>
+
+<header>
+  <div class="nav wrap" style="padding-left:0;padding-right:0;">
+    <div class="logo">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none"><path d="M3 21L14 10M21 3L14 10M14 10L10 14M3 12L12 3" stroke="#ff1e3c" stroke-width="2" stroke-linecap="round"/></svg>
+      KURO<span>AKA</span>
+    </div>
+    <nav class="nav-links">
+      <a href="#beranda" class="active">Beranda</a>
+      <a href="#vtuber">VTuber</a>
+      <a href="#aksesoris">Aksesoris</a>
+      <a href="#ilustrasi">Ilustrasi</a>
+      <a href="#audio">Audio</a>
+    </nav>
+    <div class="nav-right">
+      <button class="cart-btn" id="cartBtn">
+        🛒<span class="cart-count" id="cartCount">0</span>
+      </button>
+      <button class="btn-primary" id="sellBtn">Mulai Jual</button>
+      <button class="burger" id="burger"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- HERO -->
+  <section class="hero" id="beranda">
+    <div class="wrap hero-grid">
+      <div>
+        <div class="eyebrow">MARKETPLACE ASET DIGITAL #1 UNTUK KREATOR ANIME</div>
+        <h1>Belanja Karya<br><span class="slash-reveal">Digital Bertenaga</span><br>Jiwa Otaku.</h1>
+        <p class="lead">Dari model Live2D, emote streaming, sampai koleksi wallpaper — KUROAKA adalah rumah bagi kreator dan penggemar budaya anime yang ingin jual beli aset digital dengan aman & instan.</p>
+        <div class="hero-cta">
+          <button class="btn-primary" onclick="document.getElementById('vtuber').scrollIntoView()">Jelajahi Produk</button>
+          <button class="btn-ghost" id="openSellFromHero">Jual Karyamu</button>
+        </div>
+        <div class="stats">
+          <div class="stat"><b data-count="12400">0</b><span>Produk Aktif</span></div>
+          <div class="stat"><b data-count="3200">0</b><span>Kreator</span></div>
+          <div class="stat"><b data-count="58900">0</b><span>Transaksi</span></div>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <img class="banner-img" src="https://i.ibb.co.com/wN9cxB6c/banner-yukieime.jpg" alt="Karakter anime Yukieime - banner KUROAKA" onerror="this.closest('.hero-visual').classList.add('img-missing')">
+        <div class="beam"></div>
+        <div class="beam b2"></div>
+        <div class="badge-float f1">🎤 &nbsp;Live2D Rigging — Rp 350rb</div>
+        <div class="badge-float f2">⚡ Pengiriman Instan</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="marquee-wrap">
+    <div class="marquee" id="marqueeTrack"></div>
+  </div>
+
+  <!-- SEARCH & FILTER -->
+  <div class="wrap toolbar">
+    <div class="search-row">
+      <div class="search-box">
+        <span>🔍</span>
+        <input type="text" id="searchInput" placeholder="Cari model Live2D, emote pack, wallpaper, SFX...">
+      </div>
+    </div>
+    <div class="cat-pills" id="catPills">
+      <div class="pill active" data-target="all">✨ Semua</div>
+      <div class="pill" data-target="vtuber">🎤 VTuber Accessories</div>
+      <div class="pill" data-target="aksesoris">🎨 Aksesoris Digital</div>
+      <div class="pill" data-target="ilustrasi">🖼️ Ilustrasi & Aset</div>
+      <div class="pill" data-target="audio">🎧 Audio & Musik</div>
+    </div>
+  </div>
+
+  <!-- VTUBER -->
+  <section class="cat-section" id="vtuber" data-cat="vtuber">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <span class="tag">01 — UNTUK KREATOR</span>
+          <h2>VTuber Accessories</h2>
+          <p>Perlengkapan lengkap buat kamu yang mau debut atau upgrade channel VTuber-mu.</p>
+        </div>
+        <a href="#" class="see-all">Lihat Semua →</a>
+      </div>
+      <div class="slash-divider"></div>
+      <div class="grid" id="grid-vtuber"></div>
+    </div>
+  </section>
+
+  <!-- AKSESORIS DIGITAL -->
+  <section class="cat-section" id="aksesoris" data-cat="aksesoris">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <span class="tag">02 — PERSONALISASI</span>
+          <h2>Aksesoris Digital</h2>
+          <p>Hiasi profil, server, dan streaming-mu dengan aset estetik bertema anime.</p>
+        </div>
+        <a href="#" class="see-all">Lihat Semua →</a>
+      </div>
+      <div class="slash-divider"></div>
+      <div class="grid" id="grid-aksesoris"></div>
+    </div>
+  </section>
+
+  <!-- ILUSTRASI -->
+  <section class="cat-section" id="ilustrasi" data-cat="ilustrasi">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <span class="tag">03 — KARYA VISUAL</span>
+          <h2>Ilustrasi & Aset</h2>
+          <p>Karya seni digital, komisi, dan template siap pakai dari seniman terpilih.</p>
+        </div>
+        <a href="#" class="see-all">Lihat Semua →</a>
+      </div>
+      <div class="slash-divider"></div>
+      <div class="grid" id="grid-ilustrasi"></div>
+    </div>
+  </section>
+
+  <!-- AUDIO -->
+  <section class="cat-section" id="audio" data-cat="audio">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <span class="tag">04 — SOUNDSCAPE</span>
+          <h2>Audio & Musik</h2>
+          <p>BGM, voice line, dan efek suara bertema anime untuk konten dan proyekmu.</p>
+        </div>
+        <a href="#" class="see-all">Lihat Semua →</a>
+      </div>
+      <div class="slash-divider"></div>
+      <div class="grid" id="grid-audio"></div>
+    </div>
+  </section>
+
+  <!-- TRUST -->
+  <div class="trust">
+    <div class="wrap trust-grid">
+      <div class="trust-item"><div class="ic">🛡️</div><h4>Transaksi Aman</h4><p>Escrow otomatis, dana cair setelah file diterima.</p></div>
+      <div class="trust-item"><div class="ic">⚡</div><h4>Pengiriman Instan</h4><p>File langsung terkirim ke email & dashboard-mu.</p></div>
+      <div class="trust-item"><div class="ic">💬</div><h4>Support 24 Jam</h4><p>Tim kami siap bantu kapan saja lewat live chat.</p></div>
+      <div class="trust-item"><div class="ic">↩️</div><h4>Garansi Refund</h4><p>Uang kembali penuh bila produk tidak sesuai deskripsi.</p></div>
+    </div>
+  </div>
+
+  <!-- SELLER CTA -->
+  <div class="wrap">
+    <div class="seller-cta">
+      <div>
+        <h2>Punya Karya Digital?<br>Jual di KUROAKA.</h2>
+        <p>Buka lapak gratis dalam 5 menit. Upload aset, tentukan harga, dan mulai hasilkan dari karyamu hari ini.</p>
+      </div>
+      <button class="btn-primary" id="ctaSellBtn" style="padding:15px 30px;font-size:1rem;">Daftar Jadi Kreator</button>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <div class="logo">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M3 21L14 10M21 3L14 10M14 10L10 14M3 12L12 3" stroke="#ff1e3c" stroke-width="2" stroke-linecap="round"/></svg>
+          KURO<span style="color:#ff1e3c;">AKA</span>
+        </div>
+        <p>Pasar digital bertema hitam-merah untuk komunitas anime, VTuber, dan kreator visual di seluruh Indonesia.</p>
+        <div class="newsletter">
+          <input type="email" placeholder="Email kamu">
+          <button class="btn-primary" style="padding:11px 18px;">Ikuti</button>
+        </div>
+      </div>
+      <div class="foot-col">
+        <h5>Kategori</h5>
+        <a href="#vtuber">VTuber Accessories</a>
+        <a href="#aksesoris">Aksesoris Digital</a>
+        <a href="#ilustrasi">Ilustrasi & Aset</a>
+        <a href="#audio">Audio & Musik</a>
+      </div>
+      <div class="foot-col">
+        <h5>Perusahaan</h5>
+        <a href="#">Tentang Kami</a>
+        <a href="#">Karier</a>
+        <a href="#">Blog Kreator</a>
+        <a href="#">Kontak</a>
+      </div>
+      <div class="foot-col">
+        <h5>Bantuan</h5>
+        <a href="#">Pusat Bantuan</a>
+        <a href="#">Kebijakan Refund</a>
+        <a href="#">Syarat & Ketentuan</a>
+        <a href="#">Privasi</a>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 KUROAKA. Seluruh hak cipta dilindungi.</span>
+      <span class="credit">Dibuat oleh <b>NizamKalcer</b> · <a href="https://instagram.com/Sasha_nurkhalov" target="_blank" rel="noopener">@Sasha_nurkhalov</a></span>
+    </div>
+  </div>
+</footer>
+
+<a class="watermark" href="https://instagram.com/Sasha_nurkhalov" target="_blank" rel="noopener">
+  <span class="wm-ig">📷</span>
+  Website by <b style="color:var(--ink);">NizamKalcer</b> · @Sasha_nurkhalov
+</a>
+
+<div class="seller-overlay" id="sellerOverlay"></div>
+<div class="seller-modal" id="sellerModal">
+  <button class="seller-close" id="sellerClose">✕</button>
+
+  <!-- STEP 1: FORM -->
+  <div class="seller-view" id="sellerFormView">
+    <span class="eyebrow" style="margin-bottom:16px;">DAFTAR KREATOR</span>
+    <h2>Jual Karyamu di KUROAKA</h2>
+    <p class="seller-sub">Isi data di bawah, tim kami akan meninjau pendaftaranmu sebelum lapak aktif.</p>
+    <form id="sellerForm">
+      <div class="field">
+        <label>Nama Lengkap</label>
+        <input type="text" id="fName" required placeholder="Nama kamu">
+      </div>
+      <div class="field">
+        <label>Email Aktif</label>
+        <input type="email" id="fEmail" required placeholder="nama@email.com">
+      </div>
+      <div class="field">
+        <label>Username Instagram / WhatsApp</label>
+        <input type="text" id="fContact" required placeholder="@username atau nomor WA">
+      </div>
+      <div class="field">
+        <label>Kategori Karya</label>
+        <select id="fCategory" required>
+          <option value="" disabled selected>Pilih kategori</option>
+          <option value="vtuber">VTuber Accessories</option>
+          <option value="aksesoris">Aksesoris Digital</option>
+          <option value="ilustrasi">Ilustrasi & Aset</option>
+          <option value="audio">Audio & Musik</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Ceritakan Portofoliomu</label>
+        <textarea id="fPortfolio" required placeholder="Link portofolio, contoh karya, atau pengalamanmu sebagai kreator..." rows="3"></textarea>
+      </div>
+      <button type="submit" class="btn-primary" style="width:100%;padding:14px;font-size:.95rem;margin-top:6px;">Kirim Pendaftaran</button>
+    </form>
+  </div>
+
+  <!-- STEP 2: PENDING -->
+  <div class="seller-view" id="sellerPendingView" style="display:none;">
+    <div class="pending-icon">⏳</div>
+    <h2>Pendaftaran Terkirim!</h2>
+    <p class="seller-sub">Halo <b id="pendingName"></b>, pendaftaranmu sebagai kreator sudah kami terima.</p>
+    <div class="pending-card">
+      <div class="pending-row"><span>No. Pendaftaran</span><b id="pendingId"></b></div>
+      <div class="pending-row"><span>Kategori</span><b id="pendingCat"></b></div>
+      <div class="pending-row"><span>Status</span><b class="status-pending">Menunggu Persetujuan</b></div>
+    </div>
+    <p class="seller-note">Tim KUROAKA akan meninjau dan menghubungimu lewat email atau kontak yang kamu daftarkan, maksimal 2×24 jam.</p>
+    <button class="btn-ghost" id="sellerDoneBtn" style="width:100%;padding:13px;">Tutup</button>
+  </div>
+</div>
+
+<div class="cart-overlay" id="cartOverlay"></div>
+<aside class="cart-drawer" id="cartDrawer">
+  <div class="cart-head">
+    <h3>🛒 Keranjang Kamu</h3>
+    <button class="cart-close" id="cartClose">✕</button>
+  </div>
+  <div class="cart-body" id="cartBody">
+    <div class="cart-empty">🛒<p>Keranjangmu masih kosong.</p><span>Yuk cari aset digital favoritmu.</span></div>
+  </div>
+  <div class="cart-footer" id="cartFooter" style="display:none;">
+    <div class="cart-total-row">
+      <span>Subtotal</span>
+      <b id="cartSubtotal">Rp 0</b>
+    </div>
+    <button class="btn-primary" id="checkoutBtn" style="width:100%;padding:14px;font-size:.95rem;">Checkout Sekarang</button>
+  </div>
+</aside>
+
+<div class="toast" id="toast"><span class="dot"></span><span id="toastText">Ditambahkan ke keranjang</span></div>
+
+<script>
+// ---------------- DATA ----------------
+const products = {
+  vtuber: [
+    {id:"vt1", img:"https://i.ibb.co/chJq39QM/c24e04ed95d5902ebe9d65bd94286277.jpg", name:"Model Live2D Original — Full Rig", seller:"AoiStudio", price:2500000, old:3200000, rating:4.9, reviews:128, icon:"🎭", badge:"best", bg:"linear-gradient(135deg,#3a0d14,#150e10)"},
+    {id:"vt2", img:"https://i.ibb.co/5gKHXQZ4/7aefb426710c8181a90fbf29a4082e3.jpg", name:"Emote Pack 'Onikko' (24 Emote)", seller:"RedInkArt", price:85000, rating:4.8, reviews:342, icon:"😾", badge:"new", bg:"linear-gradient(135deg,#4a0f1a,#1c1214)"},
+    {id:"vt3", img:"https://i.ibb.co/cKbWJkzb/7dcccbf45293450898bb41cc612b1096.jpg", name:"Webcam Overlay Katana Neon", seller:"NightForge", price:120000, old:150000, rating:4.7, reviews:210, icon:"🗡️", badge:"diskon", bg:"linear-gradient(135deg,#2c0910,#150e10)"},
+    {id:"vt4", img:"https://i.ibb.co/TBcgGDJP/c2275b223a36cf370ae19a658118d98c.jpg", name:"Stream Alert Pack 'Crimson Bloom'", seller:"YukiFX", price:175000, rating:4.9, reviews:97, icon:"🌺", badge:"", bg:"linear-gradient(135deg,#450e18,#150e10)"},
+    {id:"vt5", img:"https://i.ibb.co/bRXcPK0D/d52cbe29b0a62330b866c75594a29dd3.jpg", name:"PNGTuber Asset Bundle (Ekspresi 15x)", seller:"InkDemonCo", price:95000, rating:4.6, reviews:410, icon:"🖤", badge:"", bg:"linear-gradient(135deg,#3a0d14,#1c1214)"},
+    {id:"vt6", img:"https://i.ibb.co/rK2S1wvy/22ab1a3ad75b2c8be60fb0b35193abb4.jpg", name:"Idle Animation Pack untuk Live2D", seller:"AoiStudio", price:260000, rating:4.8, reviews:66, icon:"🌀", badge:"", bg:"linear-gradient(135deg,#2c0910,#1c1214)"},
+  ],
+  aksesoris: [
+    {id:"ak1", img:"", name:"Discord Server Icon Pack 'Yokai'", seller:"KageDesign", price:45000, rating:4.7, reviews:521, icon:"👹", badge:"best", bg:"linear-gradient(135deg,#3a0d14,#150e10)"},
+    {id:"ak2", img:"", name:"Wallpaper Pack 4K Anime Dark", seller:"MoonlitPixel", price:35000, old:50000, rating:4.9, reviews:890, icon:"🌙", badge:"diskon", bg:"linear-gradient(135deg,#4a0f1a,#150e10)"},
+    {id:"ak3", img:"", name:"Twitch Panel Set 'Aka Ronin'", seller:"NightForge", price:65000, rating:4.6, reviews:154, icon:"⚔️", badge:"", bg:"linear-gradient(135deg,#2c0910,#1c1214)"},
+    {id:"ak4", img:"", name:"Font Pack Manga Bubble (12 Font)", seller:"InkDemonCo", price:55000, rating:4.8, reviews:233, icon:"🔤", badge:"new", bg:"linear-gradient(135deg,#450e18,#1c1214)"},
+    {id:"ak5", img:"", name:"Brush Pack Procreate 'Sumi-e Red'", seller:"YukiFX", price:70000, rating:4.9, reviews:180, icon:"🖌️", badge:"", bg:"linear-gradient(135deg,#3a0d14,#150e10)"},
+    {id:"ak6", img:"", name:"Profile Picture Set 'Shinigami'", seller:"KageDesign", price:40000, rating:4.5, reviews:96, icon:"💀", badge:"", bg:"linear-gradient(135deg,#2c0910,#150e10)"},
+  ],
+  ilustrasi: [
+    {id:"il1", img:"", name:"Slot Komisi Karakter Original", seller:"AoiStudio", price:450000, rating:5.0, reviews:44, icon:"🎨", badge:"best", bg:"linear-gradient(135deg,#4a0f1a,#150e10)"},
+    {id:"il2", img:"", name:"Chibi Sticker Pack (30 Karakter)", seller:"MoonlitPixel", price:60000, rating:4.7, reviews:275, icon:"🧸", badge:"", bg:"linear-gradient(135deg,#3a0d14,#1c1214)"},
+    {id:"il3", img:"", name:"Emoji Pack Ekspresi Anime", seller:"RedInkArt", price:38000, old:48000, rating:4.6, reviews:312, icon:"😳", badge:"diskon", bg:"linear-gradient(135deg,#2c0910,#150e10)"},
+    {id:"il4", img:"", name:"Banner Template Channel Anime", seller:"KageDesign", price:42000, rating:4.5, reviews:129, icon:"🖼️", badge:"", bg:"linear-gradient(135deg,#450e18,#150e10)"},
+    {id:"il5", img:"", name:"Poster Digital 'Crimson Katana'", seller:"NightForge", price:80000, rating:4.8, reviews:87, icon:"🩸", badge:"new", bg:"linear-gradient(135deg,#3a0d14,#150e10)"},
+    {id:"il6", img:"", name:"Icon Pack Weapon Anime (50 Item)", seller:"InkDemonCo", price:55000, rating:4.7, reviews:203, icon:"🔪", badge:"", bg:"linear-gradient(135deg,#2c0910,#1c1214)"},
+  ],
+  audio: [
+    {id:"au1", img:"", name:"BGM Loop Pack 'Battle Theme'", seller:"YukiFX", price:90000, rating:4.9, reviews:150, icon:"🎼", badge:"best", bg:"linear-gradient(135deg,#4a0f1a,#1c1214)"},
+    {id:"au2", img:"", name:"Lo-fi Anime Beat Pack (10 Track)", seller:"MoonlitPixel", price:65000, rating:4.8, reviews:410, icon:"🎵", badge:"", bg:"linear-gradient(135deg,#3a0d14,#150e10)"},
+    {id:"au3", img:"", name:"Voice Line Pack 'Tsundere'", seller:"RedInkArt", price:110000, old:140000, rating:4.6, reviews:88, icon:"🎙️", badge:"diskon", bg:"linear-gradient(135deg,#2c0910,#150e10)"},
+    {id:"au4", img:"", name:"SFX Pack Efek Pedang & Sihir", seller:"NightForge", price:75000, rating:4.7, reviews:267, icon:"💥", badge:"", bg:"linear-gradient(135deg,#450e18,#1c1214)"},
+    {id:"au5", img:"", name:"Ambience Pack 'Kuil Malam'", seller:"AoiStudio", price:50000, rating:4.5, reviews:64, icon:"⛩️", badge:"new", bg:"linear-gradient(135deg,#3a0d14,#1c1214)"},
+    {id:"au6", img:"", name:"Jingle Pack Notifikasi Stream", seller:"KageDesign", price:35000, rating:4.6, reviews:190, icon:"🔔", badge:"", bg:"linear-gradient(135deg,#2c0910,#150e10)"},
+  ]
+};
+
+const fmt = n => "Rp " + n.toLocaleString("id-ID");
+const badgeLabel = {best:"Best Seller", new:"Baru", diskon:"Diskon"};
+
+function renderGrid(cat){
+  const el = document.getElementById("grid-"+cat);
+  el.innerHTML = products[cat].map(p => `
+    <div class="card" data-name="${p.name.toLowerCase()}" data-cat="${cat}">
+      <div class="thumb" style="background:${p.bg};">
+        ${p.img ? `<img src="${p.img}" alt="${p.name}" loading="lazy" onerror="this.style.display='none'">` : `<span class="thumb-icon">${p.icon}</span>`}
+        <div class="shine"></div>
+        ${p.badge ? `<span class="badge ${p.badge}">${badgeLabel[p.badge]}</span>` : ""}
+      </div>
+      <div class="card-body">
+        <div class="cat-label">${cat}</div>
+        <h3>${p.name}</h3>
+        <div class="seller"><span class="dot"></span>${p.seller}</div>
+        <div class="rating">★★★★★ <span>${p.rating} (${p.reviews})</span></div>
+        <div class="price-row">
+          <div class="price">${p.old ? `<small>${fmt(p.old)}</small>` : ""}${fmt(p.price)}</div>
+          <button class="add-btn" data-id="${p.id}">+</button>
+        </div>
+      </div>
+    </div>
+  `).join("");
+}
+Object.keys(products).forEach(renderGrid);
+
+// helper: cari data produk lengkap berdasarkan id
+function findProduct(id){
+  for(const cat in products){
+    const found = products[cat].find(p=>p.id===id);
+    if(found) return found;
+  }
+  return null;
+}
+
+// ---------------- MARQUEE CONTENT ----------------
+const marqueeItems = ["Model Live2D","Emote Pack","Wallpaper 4K","Voice Line","BGM Loop","Discord Icon","Chibi Sticker","Overlay Stream","SFX Pack","Brush Procreate"];
+const track = document.getElementById("marqueeTrack");
+track.innerHTML = Array(2).fill(marqueeItems.map(t=>`<span><b>✦</b> ${t}</span>`).join("")).join("");
+
+// ---------------- CART ----------------
+let cart = []; // {id, name, price, qty, img, icon, bg}
+const cartCountEl = document.getElementById("cartCount");
+const toast = document.getElementById("toast");
+const toastText = document.getElementById("toastText");
+let toastTimer;
+
+function showToast(msg){
+  toastText.textContent = msg;
+  toast.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>toast.classList.remove("show"), 2400);
+}
+
+function saveCartCount(){
+  const total = cart.reduce((s,i)=>s+i.qty,0);
+  cartCountEl.textContent = total;
+}
+
+function addToCart(id){
+  const p = findProduct(id);
+  if(!p) return;
+  const existing = cart.find(i=>i.id===id);
+  if(existing){ existing.qty++; }
+  else{ cart.push({id:p.id, name:p.name, price:p.price, qty:1, img:p.img, icon:p.icon, bg:p.bg}); }
+  saveCartCount();
+  renderCart();
+  showToast(`"${p.name}" ditambahkan ke keranjang`);
+}
+
+function changeQty(id, delta){
+  const item = cart.find(i=>i.id===id);
+  if(!item) return;
+  item.qty += delta;
+  if(item.qty <= 0) cart = cart.filter(i=>i.id!==id);
+  saveCartCount();
+  renderCart();
+}
+
+function removeFromCart(id){
+  cart = cart.filter(i=>i.id!==id);
+  saveCartCount();
+  renderCart();
+}
+
+function renderCart(){
+  const body = document.getElementById("cartBody");
+  const footer = document.getElementById("cartFooter");
+  if(cart.length === 0){
+    body.innerHTML = `<div class="cart-empty">🛒<p>Keranjangmu masih kosong.</p><span>Yuk cari aset digital favoritmu.</span></div>`;
+    footer.style.display = "none";
+    return;
+  }
+  footer.style.display = "block";
+  body.innerHTML = cart.map(item => `
+    <div class="cart-item">
+      <div class="cart-thumb" style="background:${item.bg || 'linear-gradient(135deg,#3a0d14,#150e10)'}">
+        ${item.img ? `<img src="${item.img}" alt="${item.name}" onerror="this.style.display='none'">` : `<span>${item.icon || "🛍️"}</span>`}
+      </div>
+      <div class="cart-item-info">
+        <h4>${item.name}</h4>
+        <div class="cart-item-price">${fmt(item.price)}</div>
+        <div class="qty-control">
+          <button onclick="changeQty('${item.id}', -1)">−</button>
+          <span>${item.qty}</span>
+          <button onclick="changeQty('${item.id}', 1)">+</button>
+        </div>
+      </div>
+      <button class="cart-remove" onclick="removeFromCart('${item.id}')" title="Hapus">🗑️</button>
+    </div>
+  `).join("");
+
+  const subtotal = cart.reduce((s,i)=>s+i.price*i.qty, 0);
+  document.getElementById("cartSubtotal").textContent = fmt(subtotal);
+}
+
+function openCart(){
+  document.getElementById("cartOverlay").classList.add("show");
+  document.getElementById("cartDrawer").classList.add("show");
+  renderCart();
+}
+function closeCart(){
+  document.getElementById("cartOverlay").classList.remove("show");
+  document.getElementById("cartDrawer").classList.remove("show");
+}
+
+document.addEventListener("click", e=>{
+  if(e.target.classList.contains("add-btn")){
+    addToCart(e.target.dataset.id);
+  }
+});
+document.getElementById("cartBtn").addEventListener("click", openCart);
+document.getElementById("cartOverlay").addEventListener("click", closeCart);
+document.getElementById("cartClose").addEventListener("click", closeCart);
+document.getElementById("checkoutBtn").addEventListener("click", ()=>{
+  if(cart.length === 0) return;
+  const subtotal = cart.reduce((s,i)=>s+i.price*i.qty, 0);
+  showToast(`Checkout diproses — total ${fmt(subtotal)} (demo, sambungkan ke pembayaran nyata di sini)`);
+});
+
+// ---------------- SELLER REGISTRATION ----------------
+function openSellerModal(){
+  document.getElementById("sellerOverlay").classList.add("show");
+  document.getElementById("sellerModal").classList.add("show");
+}
+function closeSellerModal(){
+  document.getElementById("sellerOverlay").classList.remove("show");
+  document.getElementById("sellerModal").classList.remove("show");
+}
+document.getElementById("sellBtn").addEventListener("click", openSellerModal);
+document.getElementById("openSellFromHero").addEventListener("click", openSellerModal);
+document.getElementById("ctaSellBtn").addEventListener("click", openSellerModal);
+document.getElementById("sellerClose").addEventListener("click", closeSellerModal);
+document.getElementById("sellerOverlay").addEventListener("click", closeSellerModal);
+document.getElementById("sellerDoneBtn").addEventListener("click", ()=>{
+  closeSellerModal();
+  // reset ke form kosong untuk pendaftaran berikutnya
+  document.getElementById("sellerForm").reset();
+  document.getElementById("sellerFormView").style.display = "block";
+  document.getElementById("sellerPendingView").style.display = "none";
+});
+
+const catLabelFull = {vtuber:"VTuber Accessories", aksesoris:"Aksesoris Digital", ilustrasi:"Ilustrasi & Aset", audio:"Audio & Musik"};
+
+// ===== GANTI BARIS INI DENGAN ENDPOINT FORMSPREE KAMU =====
+const FORM_ENDPOINT = "https://formspree.io/f/xwvgoaog";
+// ============================================================
+
+document.getElementById("sellerForm").addEventListener("submit", async (e)=>{
+  e.preventDefault();
+  const name = document.getElementById("fName").value.trim();
+  const email = document.getElementById("fEmail").value.trim();
+  const contact = document.getElementById("fContact").value.trim();
+  const category = document.getElementById("fCategory").value;
+  const portfolio = document.getElementById("fPortfolio").value.trim();
+  const regId = "KRT-" + new Date().getFullYear() + "-" + Math.floor(1000 + Math.random()*9000);
+
+  const submitBtn = e.target.querySelector('button[type="submit"]');
+  const originalText = submitBtn.textContent;
+  submitBtn.textContent = "Mengirim...";
+  submitBtn.disabled = true;
+
+  try{
+    await fetch(FORM_ENDPOINT, {
+      method: "POST",
+      headers: { "Accept": "application/json" },
+      body: new FormData(Object.assign(document.createElement("form"), {
+        innerHTML: `
+          <input name="No. Pendaftaran" value="${regId}">
+          <input name="Nama" value="${name}">
+          <input name="Email" value="${email}">
+          <input name="Kontak" value="${contact}">
+          <input name="Kategori" value="${catLabelFull[category] || category}">
+          <input name="Portofolio" value="${portfolio.replace(/"/g,'&quot;')}">
+        `
+      }))
+    });
+  }catch(err){
+    console.error("Gagal kirim ke Formspree:", err);
+  }
+
+  submitBtn.textContent = originalText;
+  submitBtn.disabled = false;
+
+  document.getElementById("pendingName").textContent = name;
+  document.getElementById("pendingId").textContent = regId;
+  document.getElementById("pendingCat").textContent = catLabelFull[category] || "-";
+
+  document.getElementById("sellerFormView").style.display = "none";
+  document.getElementById("sellerPendingView").style.display = "block";
+  document.getElementById("sellerModal").scrollTop = 0;
+});
+
+// ---------------- CATEGORY FILTER PILLS ----------------
+document.querySelectorAll(".pill").forEach(pill=>{
+  pill.addEventListener("click", ()=>{
+    document.querySelectorAll(".pill").forEach(p=>p.classList.remove("active"));
+    pill.classList.add("active");
+    const target = pill.dataset.target;
+    document.querySelectorAll(".cat-section").forEach(sec=>{
+      sec.style.display = (target === "all" || sec.dataset.cat === target) ? "" : "none";
+    });
+    if(target !== "all"){
+      document.getElementById(target).scrollIntoView({behavior:"smooth", block:"start"});
+    }
+  });
+});
+
+// ---------------- SEARCH FILTER ----------------
+document.getElementById("searchInput").addEventListener("input", e=>{
+  const q = e.target.value.trim().toLowerCase();
+  document.querySelectorAll(".card").forEach(card=>{
+    card.style.display = card.dataset.name.includes(q) ? "" : "none";
+  });
+  document.querySelectorAll(".cat-section").forEach(sec=>{ sec.style.display=""; });
+  document.querySelectorAll(".pill").forEach(p=>p.classList.remove("active"));
+  document.querySelector('.pill[data-target="all"]').classList.add("active");
+});
+
+// ---------------- MOBILE NAV ----------------
+document.getElementById("burger").addEventListener("click", ()=>{
+  const links = document.querySelector(".nav-links");
+  const open = links.style.display === "flex";
+  links.style.display = open ? "none" : "flex";
+  links.style.cssText += open ? "" : "position:absolute;top:70px;left:0;right:0;background:#150e10;flex-direction:column;padding:20px 28px;border-bottom:1px solid rgba(255,30,60,.35);gap:16px;";
+});
+
+// ---------------- SCROLL REVEAL ----------------
+const io = new IntersectionObserver(entries=>{
+  entries.forEach(en=>{ if(en.isIntersecting){ en.target.classList.add("reveal"); io.unobserve(en.target); } });
+}, {threshold:.15});
+document.querySelectorAll(".card").forEach(c=>io.observe(c));
+
+// ---------------- COUNTER ----------------
+function animateCounter(el){
+  const target = +el.dataset.count;
+  const dur = 1400; const start = performance.now();
+  function step(now){
+    const p = Math.min((now-start)/dur, 1);
+    el.textContent = Math.floor(p*target).toLocaleString("id-ID");
+    if(p<1) requestAnimationFrame(step);
+    else el.textContent = target.toLocaleString("id-ID")+"+";
+  }
+  requestAnimationFrame(step);
+}
+const statIo = new IntersectionObserver(entries=>{
+  entries.forEach(en=>{ if(en.isIntersecting){ animateCounter(en.target); statIo.unobserve(en.target); } });
+}, {threshold:.5});
+document.querySelectorAll("[data-count]").forEach(el=>statIo.observe(el));
+
+// ---------------- ACTIVE NAV ON SCROLL ----------------
+const navLinks = document.querySelectorAll(".nav-links a");
+const sections = ["beranda","vtuber","aksesoris","ilustrasi","audio"].map(id=>document.getElementById(id));
+window.addEventListener("scroll", ()=>{
+  let current = sections[0].id;
+  sections.forEach(sec=>{ if(window.scrollY >= sec.offsetTop - 120) current = sec.id; });
+  navLinks.forEach(l=>l.classList.toggle("active", l.getAttribute("href") === "#"+current));
+});
+</script>
+</body>
+</html>
